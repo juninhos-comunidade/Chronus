@@ -108,11 +108,12 @@ Um projeto completo só ganha vida com uma equipe sintonizada. Conheça as mente
 
 | Avatar | Membro | Função / Especialidade | GitHub |
 | :---: | :--- | :--- | :--- |
-| <img src="https://github.com/github.png" width="40" style="border-radius:50%"/> | **Kauê Henrick Wiliam de Jesus Weber** | Pendente | ... |
-| <img src="https://github.com/github.png" width="40" style="border-radius:50%"/> | **Sabrina** | Pendente | ... |
-| <img src="https://github.com/github.png" width="40" style="border-radius:50%"/> | **Gustavo Oliveira Souza** | Pendente | ... |
+| <img src="https://avatars.githubusercontent.com/u/90227291?v=4" width="40" height="40" style="border-radius:50%"/> | **Kauê Henrick Wiliam de Jesus Weber** | Pendente | [kauehenrick](https://github.com/kauehenrick) |
+| <img src="https://avatars.githubusercontent.com/u/86389273?v=4" width="40" height="40" style="border-radius:50%"/> | **Sabrina** | Pendente | [SabrinaZ8](https://github.com/SabrinaZ8) |
+| <img src="https://avatars.githubusercontent.com/u/73138345?v=4" width="40" height="40" style="border-radius:50%"/> | **Gustavo Oliveira Souza** | Pendente | [gstvoli](https://github.com/gstvoli) |
 | <img src="https://github.com/github.png" width="40" style="border-radius:50%"/> | **Vitoria Pio Camilo da Silva** | Pendente | ... |
-| <img src="https://github.com/github.png" width="40" style="border-radius:50%"/> | **Felipe Gomes** | Pendente | ... |
+| <img src="https://avatars.githubusercontent.com/u/195234422?v=4" width="40" style="border-radius:50%"/> | **Felipe Gomes** | Pendente | [felipegs0](https://github.com/felipegs0) |
+| <img src="https://avatars.githubusercontent.com/u/178031162?v=4" width="40" style="border-radius:50%"/> | **Edgar Manuel Janota** | Pendente | [ndulomk](https://github.com/ndulomk) |
 
 ---
 
