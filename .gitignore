@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.next
+.turbo
+*.tsbuildinfo
+.env
+.env.local
+coverage
+bun.lockb
+*.log
+.DS_Store
+xx.txt
+rinha-de-backend-2024-q1-nodejs-main
+fake-gateway
+uploads

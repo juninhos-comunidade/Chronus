@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: global_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-edgar}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-edgar}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - infra_network
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: global_valkey
+    command: valkey-server --replicaof no one
+    ports:
+      - '6379:6379'
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - infra_network
+
+volumes:
+  postgres_data:
+  valkey_data:
+
+networks:
+  infra_network:
+    name: infra_network
+    driver: bridge

@@ -1,0 +1,58 @@
+name: chronus
+
+networks:
+  infra_network:
+    external: true
+
+services:
+  backend:
+    container_name: chronus_backend
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    restart: unless-stopped
+    env_file: ./packages/backend/.env
+    volumes:
+    - /srv/chronus/uploads:/app/packages/backend/uploads
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LOG_PRETTY: "false"
+    ports:
+      - "3001:3001"
+    networks:
+      - infra_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    container_name: chronus_frontend
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - infra_network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  admin-frontend:
+    container_name: chronus_admin
+    build:
+      context: .
+      dockerfile: packages/admin-frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    networks:
+      - infra_network
+    depends_on:
+      backend:
+        condition: service_healthy
