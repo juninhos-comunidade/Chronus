@@ -1,13 +1,12 @@
-<p align="center">
-   <h1>Chronus</h1>
-</p>
+
+<h1 align="center">Chronus</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Comunidade-Juninhos-7B2CBF?style=for-the-badge&logo=discord&logoColor=white" alt="Juninhos Community" />
   <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge" alt="Status" />
 </p>
 
-> Documento vivo. É o cérebro do projecto — orientado a fluxo, jornada do utilizador e propriedade de dados. Não é especificação técnica. Tudo parte daqui.
+> Documento vivo. É o cérebro do projecto — orientado a fluxo, jornada do utilizador e propriedade de dados.
 
 ---
 
