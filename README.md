@@ -1,4 +1,6 @@
-# Chronus
+<p align="center">
+   <h1>Chronus</h1>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Comunidade-Juninhos-7B2CBF?style=for-the-badge&logo=discord&logoColor=white" alt="Juninhos Community" />
