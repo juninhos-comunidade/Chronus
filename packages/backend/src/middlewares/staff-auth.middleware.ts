@@ -7,10 +7,6 @@ import { ErrorFactory } from '@/shared/result/factory'
 import { Err, Ok, type Result } from '@/shared/result/types'
 import type { UnauthorizedError, ForbiddenError } from '@/shared/result/errors'
 
-// ─────────────────────────────────────────────
-// Tipos públicos
-// ─────────────────────────────────────────────
-
 export interface StaffAuthContext {
   staffId: string
   email:   string
@@ -19,10 +15,6 @@ export interface StaffAuthContext {
 
 type StaffAuthError  = UnauthorizedError | ForbiddenError
 export type StaffAuthResult = Result<StaffAuthContext, StaffAuthError>
-
-// ─────────────────────────────────────────────
-// Helper — unwrap tipado para controllers
-// ─────────────────────────────────────────────
 
 /**
  * Extrai o StaffAuthContext de forma type-safe.
@@ -46,10 +38,6 @@ export const getStaffAuth = (context: { staffAuth: StaffAuthResult }): StaffAuth
   }
   return auth.value
 }
-
-// ─────────────────────────────────────────────
-// Middleware
-// ─────────────────────────────────────────────
 
 export const staffAuthMiddleware = () =>
   new Elysia({ name: 'staff-auth' })

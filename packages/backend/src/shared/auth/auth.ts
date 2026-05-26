@@ -25,9 +25,9 @@ export const comparePassword = async (
   }
 }
 
-// ─────────────────────────────────────────────
+
 // JWT — payload tipado
-// ─────────────────────────────────────────────
+
 
 /**
  * Tipos de token no sistema.
@@ -110,11 +110,11 @@ export const verifyToken = (token: string): TokenPayload | null => {
   }
 }
 
-// ─────────────────────────────────────────────
+
 // Compat — mantém generateToken/generateRefreshToken
 // para código legacy que ainda os use.
 // Deprecar após migração completa.
-// ─────────────────────────────────────────────
+
 
 /** @deprecated Usar signToken({ userId, type: 'user' }, ttl) */
 export const generateToken = (userId: string): string =>

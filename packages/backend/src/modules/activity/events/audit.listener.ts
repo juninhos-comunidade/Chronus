@@ -15,9 +15,7 @@ export const registerTelemetryExporter = (exporter: TelemetryExporter): void => 
   logger.info({ name: exporter.name }, 'Telemetry exporter registered')
 }
 
-// ─────────────────────────────────────────────
 // REACTIVE NOTIFICATIONS
-// ─────────────────────────────────────────────
 
 export type ReactiveHandler = (
   type:      string,
@@ -31,9 +29,7 @@ export const registerReactiveHandler = (handler: ReactiveHandler): void => {
   reactiveHandlers.push(handler)
 }
 
-// ─────────────────────────────────────────────
 // CORE
-// ─────────────────────────────────────────────
 
 export const processEventForAudit = async (
   eventName: string,
@@ -77,9 +73,8 @@ export const processEventForAudit = async (
     )
   }
 }
-// ─────────────────────────────────────────────
+
 // AUDIT HELPERS
-// ─────────────────────────────────────────────
 
 type AuditMetadata = Record<string, unknown>
 
@@ -100,9 +95,7 @@ const insertAuditLog = async (
 }
 
 export const auditHelpers = {
-  // ─────────────────────────────────────────────
   // User actions (actor = regular user)
-  // ─────────────────────────────────────────────
   create: (actorId: string, entityType: string, entityId: string, metadata?: AuditMetadata) =>
     insertAuditLog(actorId, null, entityType, entityId, `${entityType.toUpperCase()}_CREATED`, metadata),
 
@@ -112,9 +105,8 @@ export const auditHelpers = {
   delete: (actorId: string, entityType: string, entityId: string, metadata?: AuditMetadata) =>
     insertAuditLog(actorId, null, entityType, entityId, `${entityType.toUpperCase()}_DELETED`, metadata),
 
-  // ─────────────────────────────────────────────
   // Staff actions (actor = staff member)
-  // ─────────────────────────────────────────────
+  
   staffCreate: (staffId: string, entityType: string, entityId: string, metadata?: AuditMetadata) =>
     insertAuditLog(null, staffId, entityType, entityId, `${entityType.toUpperCase()}_CREATED`, metadata),
 

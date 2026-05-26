@@ -1,10 +1,10 @@
 import { Queue, Worker, type Job, type JobsOptions } from 'bullmq';
 import Redis from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 import { env } from '@/config/env';
 import { logger } from '@/shared/logger/logger';
 
-
-const redisConnection = new Redis({
+const redisOpts: RedisOptions = {
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
   password: env.REDIS_PASSWORD,
@@ -13,7 +13,11 @@ const redisConnection = new Redis({
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
-});
+};
+
+const redisConnection = new Redis(redisOpts);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const bullConnection: any = redisConnection;
 
 redisConnection.on('connect', () => {
   logger.info('Redis connected');
@@ -38,7 +42,7 @@ export class QueueManager<T = unknown> {
     this.queueName = config.name;
 
     this.queue = new Queue<T>(config.name, {
-      connection: redisConnection,
+      connection: bullConnection,
       defaultJobOptions: {
         attempts: 3,
         backoff: {
@@ -59,19 +63,16 @@ export class QueueManager<T = unknown> {
     this.worker = new Worker<T>(
       config.name,
       async (job: Job<T>) => {
-        const startTime = Date.now();
         try {
           logger.info({ jobId: job.id, jobName: job.name }, 'Processing job');
           await config.processor(job);
         } catch (error) {
           logger.error({ error, jobId: job.id, jobName: job.name }, 'Job processing failed');
           throw error;
-        } finally {
-          const duration = (Date.now() - startTime) / 1000;
         }
       },
       {
-        connection: redisConnection,
+        connection: bullConnection,
         concurrency: 5,
       }
     );

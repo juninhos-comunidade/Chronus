@@ -7,21 +7,13 @@ import { ErrorFactory } from '@/shared/result/factory'
 import { Err, Ok, type Result } from '@/shared/result/types'
 import type { UnauthorizedError, ForbiddenError } from '@/shared/result/errors'
 
-// ─────────────────────────────────────────────
-// Tipos públicos
-// ─────────────────────────────────────────────
 
 export interface AuthContext {
   userId: string
-  roles:  Array<'buyer' | 'seller'>
 }
 
 type AuthError  = UnauthorizedError | ForbiddenError
 export type AuthResult = Result<AuthContext, AuthError>
-
-// ─────────────────────────────────────────────
-// Helper — unwrap tipado (mesmo padrão do staff)
-// ─────────────────────────────────────────────
 
 export const getAuth = (auth: AuthResult): AuthContext => {
   if (!auth.success) {
@@ -46,20 +38,6 @@ export const requireUser = (
   if (!auth.success) return auth
   return Ok(auth.value)
 }
-
-export const requireSeller = (
-  auth: AuthResult
-): Result<AuthContext, ForbiddenError | UnauthorizedError> => {
-  if (!auth.success) return auth
-  if (!auth.value.roles.includes('seller')) {
-    return Err(ErrorFactory.forbidden('Acesso restrito a sellers', undefined, 'AuthMiddleware'))
-  }
-  return Ok(auth.value)
-}
-
-// ─────────────────────────────────────────────
-// Middleware
-// ─────────────────────────────────────────────
 
 export const authMiddleware = () =>
   new Elysia({ name: 'auth' })
@@ -109,7 +87,7 @@ export const authMiddleware = () =>
 
       // Confirmar que o user existe e não foi soft-deleted
       const [user] = await db
-        .select({ id: users.id, roles: users.roles })
+        .select({ id: users.id })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1)
@@ -126,7 +104,7 @@ export const authMiddleware = () =>
 
       const success = Ok({
         userId: user.id,
-        roles:  user.roles ?? ['buyer'],
+        roles:  [],
       })
 
       return {
@@ -143,10 +121,8 @@ export const authMiddleware = () =>
       return
     })
 
-// ─────────────────────────────────────────────
 // Optional — para rotas públicas que beneficiam
 // de saber quem está autenticado mas não exigem
-// ─────────────────────────────────────────────
 
 export const optionalAuthMiddleware = () =>
   new Elysia({ name: 'optional-auth' })

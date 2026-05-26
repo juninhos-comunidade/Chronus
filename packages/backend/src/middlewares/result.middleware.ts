@@ -1,4 +1,3 @@
-// src/middlewares/result.middleware.ts
 import { Elysia } from "elysia";
 import { Result } from "@/shared/result/types"; 
 import { httpLogger } from "@/shared/logger/logger";

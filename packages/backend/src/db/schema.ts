@@ -4,18 +4,18 @@ import {
 } from 'drizzle-orm/pg-core'
 import { sql, relations } from 'drizzle-orm'
 
-// ─────────────────────────────────────────────
+
 // HELPERS
-// ─────────────────────────────────────────────
+
 const id        = () => uuid('id').primaryKey().default(sql`uuid_generate_v7()`)
 const now       = () => timestamp('created_at').defaultNow().notNull()
 const updatedAt = () => timestamp('updated_at').defaultNow().notNull()
 const deletedAt = () => timestamp('deleted_at')
 
 
-// ─────────────────────────────────────────────
+
 // USERS
-// ─────────────────────────────────────────────
+
 export const users = pgTable('users', {
   id:           id(),
   email:        text('email').notNull(),
@@ -38,9 +38,9 @@ export const users = pgTable('users', {
   statusIdx:    index('users_status_idx').on(t.status),
 }))
 
-// ─────────────────────────────────────────────
+
 // STAFF USERS
-// ─────────────────────────────────────────────
+
 export const staffUsers = pgTable('staff_users', {
   id:           id(),
   email:        text('email').notNull(),
@@ -57,9 +57,9 @@ export const staffUsers = pgTable('staff_users', {
   emailHashIdx: uniqueIndex('staff_email_hash_idx').on(t.emailHash),
 }))
 
-// ─────────────────────────────────────────────
+
 // SESSIONS
-// ─────────────────────────────────────────────
+
 export const sessions = pgTable('sessions', {
   id:           id(),
   userId:       uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -80,9 +80,9 @@ export const sessions = pgTable('sessions', {
   expiresAtIdx:    index('sessions_expires_at_idx').on(t.expiresAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // STAFF SESSIONS
-// ─────────────────────────────────────────────
+
 export const staffSessions = pgTable('staff_sessions', {
   id:           id(),
   staffId:      uuid('staff_id').notNull().references(() => staffUsers.id, { onDelete: 'cascade' }),
@@ -103,10 +103,10 @@ export const staffSessions = pgTable('staff_sessions', {
   expiresAtIdx:    index('staff_sessions_expires_at_idx').on(t.expiresAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // ACTIVITY LOG
 // Registo imutável de todas as acções relevantes. Nunca se apaga.
-// ─────────────────────────────────────────────
+
 export const activityLog = pgTable('activity_log', {
   id:           id(),
   workspaceId:  uuid('workspace_id').references(() => workspaces.id, { onDelete: 'set null' }),
@@ -131,9 +131,9 @@ export const activityLog = pgTable('activity_log', {
   createdIdx:   index('activity_log_created_idx').on(t.createdAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // NOTIFICATIONS
-// ─────────────────────────────────────────────
+
 export const notifications = pgTable('notifications', {
   id:          id(),
   recipientId: uuid('recipient_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -159,10 +159,10 @@ export const notifications = pgTable('notifications', {
   workspaceIdx:  index('notifications_workspace_idx').on(t.workspaceId),
 }))
 
-// ─────────────────────────────────────────────
+
 // WORKSPACES
 // Cada equipa tem um workspace isolado.
-// ─────────────────────────────────────────────
+
 export const workspaces = pgTable('workspaces', {
   id:                  id(),
   name:                varchar('name', { length: 100 }).notNull(),
@@ -187,10 +187,10 @@ export const workspaces = pgTable('workspaces', {
   statusIdx: index('workspaces_status_idx').on(t.status),
 }))
 
-// ─────────────────────────────────────────────
+
 // WORKSPACE MEMBERS
 // Relação entre user e workspace. Roles são por workspace, não globais.
-// ─────────────────────────────────────────────
+
 export const workspaceMembers = pgTable('workspace_members', {
   id:          id(),
   workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
@@ -210,10 +210,10 @@ export const workspaceMembers = pgTable('workspace_members', {
   roleIdx:      index('workspace_members_role_idx').on(t.workspaceId, t.role),
 }))
 
-// ─────────────────────────────────────────────
+
 // INVITES
 // Convites pendentes para entrar no workspace.
-// ─────────────────────────────────────────────
+
 export const invites = pgTable('invites', {
   id:          id(),
   workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
@@ -234,10 +234,10 @@ export const invites = pgTable('invites', {
   expiresIdx:   index('invites_expires_at_idx').on(t.expiresAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // SPRINTS
 // Ciclo de trabalho da equipa. Apenas um activo por workspace de cada vez.
-// ─────────────────────────────────────────────
+
 export const sprints = pgTable('sprints', {
   id:                  id(),
   workspaceId:         uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
@@ -263,10 +263,10 @@ export const sprints = pgTable('sprints', {
   activeIdx:         index('sprints_active_idx').on(t.workspaceId, t.status, t.startedAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // SPRINT METRICS
 // Snapshot imutável calculado ao fechar o sprint. Nunca é recalculado.
-// ─────────────────────────────────────────────
+
 export const sprintMetrics = pgTable('sprint_metrics', {
   id:                    id(),
   sprintId:              uuid('sprint_id').notNull().unique().references(() => sprints.id, { onDelete: 'cascade' }),
@@ -290,10 +290,10 @@ export const sprintMetrics = pgTable('sprint_metrics', {
   sprintIdx: uniqueIndex('sprint_metrics_sprint_idx').on(t.sprintId),
 }))
 
-// ─────────────────────────────────────────────
+
 // TASKS
 // A unidade central do sistema.
-// ─────────────────────────────────────────────
+
 export const tasks = pgTable('tasks', {
   id:               id(),
   workspaceId:      uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
@@ -332,10 +332,10 @@ export const tasks = pgTable('tasks', {
   backlogIdx:    index('tasks_backlog_idx').on(t.workspaceId, t.sprintId),
 }))
 
-// ─────────────────────────────────────────────
+
 // TASK COMMENTS
 // Comentários contextuais numa tarefa.
-// ─────────────────────────────────────────────
+
 export const taskComments = pgTable('task_comments', {
   id:        id(),
   taskId:    uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
@@ -350,10 +350,10 @@ export const taskComments = pgTable('task_comments', {
   createdIdx: index('task_comments_created_idx').on(t.taskId, t.createdAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // TASK HISTORY
 // Registo imutável de todas as mudanças de estado de uma tarefa.
-// ─────────────────────────────────────────────
+
 export const taskHistory = pgTable('task_history', {
   id:          id(),
   taskId:      uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
@@ -369,10 +369,10 @@ export const taskHistory = pgTable('task_history', {
   changedAtIdx: index('task_history_changed_at_idx').on(t.taskId, t.changedAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // TIME ENTRIES
 // Cada sessão de trabalho numa tarefa.
-// ─────────────────────────────────────────────
+
 export const timeEntries = pgTable('time_entries', {
   id:              id(),
   taskId:          uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
@@ -399,10 +399,10 @@ export const timeEntries = pgTable('time_entries', {
   startedAtIdx:   index('time_entries_started_at_idx').on(t.workspaceId, t.startedAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // BADGE DEFINITIONS
 // Catálogo de todas as insígnias possíveis. Gerido pelo sistema.
-// ─────────────────────────────────────────────
+
 export const badgeDefinitions = pgTable('badge_definitions', {
   id:          id(),
   code:        varchar('code', { length: 100 }).notNull(),
@@ -432,10 +432,10 @@ export const badgeDefinitions = pgTable('badge_definitions', {
   activeIdx:   index('badge_definitions_active_idx').on(t.isActive),
 }))
 
-// ─────────────────────────────────────────────
+
 // USER BADGES
 // Insígnias desbloqueadas por um utilizador num workspace.
-// ─────────────────────────────────────────────
+
 export const userBadges = pgTable('user_badges', {
   id:           id(),
   userId:       uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -456,11 +456,11 @@ export const userBadges = pgTable('user_badges', {
   unlockedIdx:  index('user_badges_unlocked_at_idx').on(t.unlockedAt),
 }))
 
-// ─────────────────────────────────────────────
+
 // DAILY SNAPSHOTS
 // Agregação diária por workspace. Calculada em job nocturno.
 // Para performance — evita recalcular histórico.
-// ─────────────────────────────────────────────
+
 export const dailySnapshots = pgTable('daily_snapshots', {
   id:                  id(),
   workspaceId:         uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
