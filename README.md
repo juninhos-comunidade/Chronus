@@ -30,12 +30,22 @@ O Chronus não é nenhum deles — é a intersecção entre todos, pensado para 
 
 ## Stack Tecnológica
 
-O projeto foi estruturado seguindo os conceitos de **modularização**, alta coesão e baixo acoplamento:
+Monorepo estruturado com **Turborepo** + **Bun**, seguindo conceitos de modularização, alta coesão e baixo acoplamento:
 
-* **Frontend:** ...
-* **Backend:** ...
-* **Banco de Dados:** ...
-* **Infraestrutura:** ...
+| Camada | Tecnologia |
+|--------|-----------|
+| **Runtime** | [Bun](https://bun.sh) v1.1.38 |
+| **Backend** | [Elysia](https://elysiajs.com) + TypeScript |
+| **Frontend** | [React 19](https://react.dev) + [Vite](https://vitejs.dev) + [Tailwind CSS v4](https://tailwindcss.com) + [Redux Toolkit](https://redux-toolkit.js.org) |
+| **Admin Frontend** | React 19 + Vite + Tailwind CSS v4 |
+| **Banco de Dados** | [PostgreSQL](https://postgresql.org) + [Drizzle ORM](https://orm.drizzle.team) |
+| **Cache/Fila** | [Redis](https://redis.io) + [BullMQ](https://bullmq.io) |
+| **Autenticação** | JWT + Argon2 |
+| **Email** | Nodemailer + SMTP |
+| **Upload** | Local / R2 (S3-compatible) |
+| **Container** | Docker + Docker Compose |
+
+> 📖 Guia completo de setup em [`docs/how-to-run.md`](docs/how-to-run.md)
 
 ## Nosso Squad
 

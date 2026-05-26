@@ -1,0 +1,40 @@
+{
+  "name": "chronus",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:frontend": "turbo run dev --filter=@chronus/frontend",
+    "dev:backend": "turbo run dev --filter=@chronus/backend",
+    "build": "turbo run build",
+    "build:frontend": "turbo run build --filter=@chronus/frontend",
+    "build:backend": "turbo run build --filter=@chronus/backend",
+    "build:desktop:arch": "turbo run tauri:build:arch --filter=@chronus/frontend",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "lint:frontend": "turbo run lint --filter=@chronus/frontend",
+    "lint:backend": "turbo run lint --filter=@chronus/backend",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "dev:admin": "turbo run dev --filter=@chronus/admin-frontend",
+    "build:admin": "turbo run build --filter=@chronus/admin-frontend",
+    "lint:admin": "turbo run lint --filter=@chronus/admin-frontend",
+    "add:admin": "bun add --cwd packages/admin-frontend",
+    "db:generate": "turbo run db:generate --filter=@chronus/backend",
+    "db:migrate": "turbo run db:migrate --filter=@chronus/backend",
+    "db:studio": "turbo run db:studio --filter=@chronus/backend",
+    "add:frontend": "bun add --cwd packages/frontend",
+    "add:backend": "bun add --cwd packages/backend",
+    "add:shared": "bun add --cwd packages/shared"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.8",
+    "turbo": "^2.3.3"
+  },
+  "packageManager": "bun@1.1.38",
+  "dependencies": {
+    "@chronus/shared": "workspace:*"
+  }
+}
