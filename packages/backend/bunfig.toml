@@ -1,0 +1,3 @@
+[build]
+experimentalDecorators = true
+emitDecoratorMetadata = true
