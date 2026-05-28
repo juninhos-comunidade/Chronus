@@ -6,6 +6,9 @@ import { env } from '@/config/env'
 import { logger } from '@/shared/logger/logger'
 import { resultMiddleware } from '@/middlewares/result.middleware'
 import { staffController } from './modules/staff/infrastructure/http/controllers/staff.controller'
+import { workspaceController } from './modules/workspaces/infrastructure/http/controllers/workspace.controller'
+import { workspaceMemberController } from './modules/workspaces/infrastructure/http/controllers/workspace-member.controller'
+import { workspaceInviteController, inviteAcceptController } from './modules/workspaces/infrastructure/http/controllers/workspace-invite.controller'
 
 const app = new Elysia()
 .use(
@@ -69,7 +72,10 @@ const app = new Elysia()
             },
             tags: [
               { name: 'staff-auth', description: 'Autenticação de staff' },
-              { name: 'staff', description: 'Gestão de staff' }
+              { name: 'staff', description: 'Gestão de staff' },
+              { name: 'workspaces', description: 'Gestão de workspaces' },
+              { name: 'workspace-members', description: 'Membros do workspace' },
+              { name: 'workspace-invites', description: 'Convites do workspace' },
             ],
           },
           path: '/docs',
@@ -91,6 +97,12 @@ const app = new Elysia()
 
   // Staff
   .use(staffController)
+
+  // Workspaces
+  .use(workspaceController)
+  .use(workspaceMemberController)
+  .use(workspaceInviteController)
+  .use(inviteAcceptController)
 
   .onStart(() => {
     logger.info(`chronus API running on http://localhost:${env.PORT}`)
