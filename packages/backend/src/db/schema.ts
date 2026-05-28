@@ -405,7 +405,7 @@ export const timeEntries = pgTable('time_entries', {
 
 export const badgeDefinitions = pgTable('badge_definitions', {
   id:          id(),
-  code:        varchar('code', { length: 100 }).notNull(),
+  code:        varchar('code', { length: 100 }).notNull().unique(),
   // ex: focus_first_pomodoro — único globalmente
   name:        varchar('name', { length: 100 }).notNull(),
   description: text('description'),
@@ -427,7 +427,6 @@ export const badgeDefinitions = pgTable('badge_definitions', {
   createdAt:   now(),
   updatedAt:   updatedAt(),
 }, t => ({
-  codeIdx:     uniqueIndex('badge_definitions_code_idx').on(t.code),
   categoryIdx: index('badge_definitions_category_idx').on(t.category),
   activeIdx:   index('badge_definitions_active_idx').on(t.isActive),
 }))
