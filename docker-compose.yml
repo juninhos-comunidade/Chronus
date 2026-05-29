@@ -8,12 +8,12 @@ services:
   backend:
     container_name: chronus_backend
     build:
-      context: .
-      dockerfile: packages/backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: ./packages/backend/.env
+    env_file: ./backend/.env
     volumes:
-    - /srv/chronus/uploads:/app/packages/backend/uploads
+      - /srv/chronus/uploads:/app/uploads
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -32,8 +32,8 @@ services:
   frontend:
     container_name: chronus_frontend
     build:
-      context: .
-      dockerfile: packages/frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -46,8 +46,8 @@ services:
   admin-frontend:
     container_name: chronus_admin
     build:
-      context: .
-      dockerfile: packages/admin-frontend/Dockerfile
+      context: ./admin-frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "3002:3002"

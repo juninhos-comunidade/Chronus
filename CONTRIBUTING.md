@@ -8,14 +8,13 @@
 ## Estrutura do repositório
 
 ```
-Chronus/          ← monorepo gerido com Turborepo
-├── packages/
-│   ├── backend/
-│   ├── frontend/
-│   ├── admin-frontend/
-│   └── shared/
-├── turbo.json
-└── package.json
+Chronus/
+├── backend/
+├── frontend/
+├── admin-frontend/
+├── docs/
+├── infra/
+└── docker-compose.yml
 ```
 
 ---
@@ -84,7 +83,7 @@ git commit -m "refactor(staff): extract session logic to service"
 git commit -m "chore(deps): update drizzle-orm to 0.31"
 ```
 
-> Âmbito = nome do módulo ou área: `auth`, `workspaces`, `tasks`, `timer`, `badges`, `frontend`, `shared`
+> Âmbito = nome do módulo ou área: `auth`, `workspaces`, `tasks`, `timer`, `badges`, `frontend`
 
 ---
 
@@ -151,7 +150,7 @@ como aceite e adicionar o membro ao workspace atomicamente.
 **Quem revê:**
 - Backend PR → qualquer outro membro do backend
 - Frontend PR → qualquer outro membro do frontend
-- PR cross-cutting (shared, config, infra) → qualquer pessoa do squad
+- PR cross-cutting (config, infra) → qualquer pessoa do squad
 
 **O que verificar na review:**
 
@@ -279,7 +278,6 @@ Já deve estar no `.gitignore`, mas confirma:
 .env.*.local
 node_modules/
 dist/
-.turbo/
 *.log
 ```
 

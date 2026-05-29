@@ -23,11 +23,9 @@
 O que já existe e serve de referência para todos:
 
 ```
-packages/
-├── admin-frontend/
-├── frontend/
-├── shared/
-└── backend/
+admin-frontend/
+frontend/
+backend/
     └── src/
         ├── config/
         ├── db/                         schema.ts + migrations
