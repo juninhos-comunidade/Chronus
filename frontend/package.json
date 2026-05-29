@@ -1,6 +1,6 @@
 {
-  "name": "@chronus/admin-frontend",
- "private": true,
+  "name": "@chronus/frontend",
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -9,10 +9,9 @@
     "lint": "eslint src",
     "typecheck": "tsc -b",
     "preview": "vite preview",
-    "clean": "rm -rf dist .turbo node_modules"
+    "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@chronus/shared": "workspace:*",
     "@headlessui/react": "^2.2.9",
     "@hello-pangea/dnd": "^18.0.1",
     "@heroicons/react": "^2.2.0",

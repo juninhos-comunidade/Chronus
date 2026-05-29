@@ -1,7 +1,3 @@
-import type { Result } from '@/shared/result/types'
-import type { AppError } from '@/shared/result/errors'
-import type { DbOrTx } from '@/db/transaction'
-
 export type UserResponseDTO = {
   id: string
   email: string

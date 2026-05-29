@@ -6,7 +6,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun dist/index.js",
     "build": "bun build src/index.ts --outdir ./dist --target bun --sourcemap --external @node-rs/argon2 --external bcrypt",
-    "postbuild": "cp -r node_modules/@node-rs dist/ && cp -r node_modules/bcrypt dist/ 2>/dev/null || true",
+    "postbuild": "rm -rf dist/@node-rs && cp -r node_modules/@node-rs dist/ && cp -r node_modules/bcrypt dist/ 2>/dev/null || true",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit",
     "test:integration": "vitest --run src/modules/**/__tests__/integration/*.test.ts",
@@ -17,10 +17,9 @@
     "db:seed": "bun src/db/seed.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "clean": "rm -rf dist node_modules .turbo"
+    "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@chronus/shared": "workspace:*",
     "@bull-board/api": "^6.16.4",
     "@bull-board/elysia": "^6.16.4",
     "@elysiajs/cors": "^1.4.1",

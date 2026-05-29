@@ -11,7 +11,9 @@
 ```bash
 git clone <repo-url>
 cd chronus
-bun install
+cd backend && bun install
+cd ../frontend && bun install
+cd ../admin-frontend && bun install
 ```
 
 ## 2. Variáveis de ambiente
@@ -19,40 +21,38 @@ bun install
 Copie os exemplos e ajuste conforme necessário:
 
 ```bash
-cp packages/backend/.env.example packages/backend/.env
-cp packages/frontend/.env.example packages/frontend/.env
-cp packages/admin-frontend/.env.example packages/admin-frontend/.env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+cp admin-frontend/.env.example admin-frontend/.env
 ```
 
-## 3. Subir dependências (DB, Redis, OTEL)
+## 3. Subir dependências (DB, Redis)
 
 ```bash
-docker compose up -d postgres valkey
+cd infra && docker compose up -d
 ```
 
-> Se não tiver os serviços `postgres` e `valkey` no `docker-compose.yml`, ajuste os `DATABASE_URL` e `REDIS_HOST` no `.env` para apontar para instâncias locais ou remotas.
+> O `docker-compose.yml` em `infra/` tem Postgres e Valkey (Redis). Se preferir instâncias externas, ajuste `DATABASE_URL` e `REDIS_HOST` no `.env`.
 
 ## 4. Rodar migrations + seed
 
 ```bash
-bun run db:migrate
-bun run db:seed
+cd backend && bun run db:migrate && bun run db:seed
 ```
 
 ## 5. Iniciar em desenvolvimento
 
-```bash
-bun run dev
-```
-
-Isso sobe todos os packages (backend, frontend, admin-frontend) via Turborepo.
-
-Para subir apenas um:
+Cada app roda independente no seu próprio terminal:
 
 ```bash
-bun run dev:backend   # Backend em http://localhost:3001
-bun run dev:frontend  # Frontend em http://localhost:3000
-bun run dev:admin     # Admin em http://localhost:3002
+# Terminal 1 - Backend
+cd backend && bun run dev
+
+# Terminal 2 - Frontend
+cd frontend && bun run dev
+
+# Terminal 3 - Admin Frontend
+cd admin-frontend && bun run dev
 ```
 
 ## 6. Acessar
@@ -64,27 +64,24 @@ bun run dev:admin     # Admin em http://localhost:3002
 | Frontend | http://localhost:3000 |
 | Admin Frontend | http://localhost:3002 |
 
-
-## Scripts úteis
+## Scripts úteis (dentro de cada diretório)
 
 ```bash
-bun run lint          # Lint em todos os packages
-bun run typecheck     # TypeScript check em todos
+cd backend
+bun run lint          # Lint
+bun run typecheck     # TypeScript check
 bun run test          # Testes
 bun run build         # Build de produção
 ```
 
-## Estrutura do monorepo
+## Estrutura do projeto
 
 ```
 chronus/
-├── packages/
-│   ├── backend/          # API Elysia (Bun)
-│   ├── frontend/         # React + Vite
-│   ├── admin-frontend/   # React + Vite (admin)
-│   └── shared/           # Tipos/utils compartilhados
+├── backend/              # API Elysia (Bun)
+├── frontend/             # React + Vite
+├── admin-frontend/       # React + Vite (admin)
 ├── docs/                 # Documentação
-├── infra/                # Infraestrutura
-├── docker-compose.yml    # Serviços auxiliares
-└── turbo.json            # Config Turborepo
+├── infra/                # Infraestrutura (docker-compose)
+├── docker-compose.yml    # Serviços de produção
 ```
