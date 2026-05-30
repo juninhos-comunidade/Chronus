@@ -9,40 +9,28 @@
 > Documento vivo. É o cérebro do projecto — orientado a fluxo, jornada do utilizador e propriedade de dados.
 
 ---
+---
 
-## 1. O Que é o Chronus e Por Que Existe
+## 📝 Sobre o Projeto
 
-O Chronus nasceu para resolver um problema real dentro de equipas de desenvolvimento: a procrastinação colectiva não tem ferramenta adequada. As equipas usam o Trello para tarefas, o Toggl para tempo, o Slack para comunicação e o Notion para documentação — e acabam com quatro janelas abertas e zero foco.
+O **Chronus** é uma plataforma inovadora de gestão de tempo voltada para equipes, totalmente focada em produtividade e organização estratégica de tarefas para combater e evitar a procrastinação no ambiente de desenvolvimento e trabalho coletivo. 
 
-O Chronus é uma **plataforma de gestão de tempo focada em equipas** — um espaço onde qualquer membro pode ver o que está a ser feito, por quem, há quanto tempo, e o que ainda está bloqueado. Não é um simples kanban. É um sistema que une tarefas, cronómetros, métricas e gamificação numa experiência coesa.
+Este projeto está sendo desenvolvido de forma 100% colaborativa dentro do ecossistema da **Comunidade Juninhos**. Nosso objetivo primordial é aplicar conceitos modernos de engenharia de software para entregar uma solução robusta, escalável e com impacto real na rotina de times tech.
 
-**O que nos diferencia dos concorrentes:**
+> 💡 **Nota do Squad:** Este README serve como um documento vivo. Ele será atualizado continuamente conforme novas funcionalidades forem integradas nas sprints de 30 dias.
 
-| Ferramenta | O que fazem bem | O que lhes falta |
-|---|---|---|
-| **Toggl Track** | Registo de tempo preciso, relatórios visuais | Sem gestão de tarefas, sem foco colectivo |
-| **Linear** | Velocidade, UX para engenheiros, ciclos de sprint | Sem rastreio de tempo nativo, sem gamificação |
-| **Jira** | Customização total, workflows complexos | Lento, burocrático, curva de aprendizagem alta |
-| **Clockify** | Rastreio de tempo por equipas, grátis | Sem kanban, sem foco colectivo, sem badges |
-| **Slack** | Comunicação em tempo real, canais contextuais | Não gere tarefas nem tempo — é só mensagens |
-
-O Chronus não é nenhum deles — é a intersecção entre todos, pensado para equipas pequenas que querem velocidade sem perder visibilidade.
-
+---
 ## Stack Tecnológica
 
 Monorepo estruturado com **Turborepo** + **Bun**, seguindo conceitos de modularização, alta coesão e baixo acoplamento:
 
 | Camada | Tecnologia |
 |--------|-----------|
-| **Runtime** | [Bun](https://bun.sh) v1.1.38 |
-| **Backend** | [Elysia](https://elysiajs.com) + TypeScript |
+| **Backend** | [Laravel](https://laravel.com/) + PHP |
 | **Frontend** | [React 19](https://react.dev) + [Vite](https://vitejs.dev) + [Tailwind CSS v4](https://tailwindcss.com) + [Redux Toolkit](https://redux-toolkit.js.org) |
 | **Admin Frontend** | React 19 + Vite + Tailwind CSS v4 |
 | **Banco de Dados** | [PostgreSQL](https://postgresql.org) + [Drizzle ORM](https://orm.drizzle.team) |
-| **Cache/Fila** | [Redis](https://redis.io) + [BullMQ](https://bullmq.io) |
 | **Autenticação** | JWT + Argon2 |
-| **Email** | Nodemailer + SMTP |
-| **Upload** | Local / R2 (S3-compatible) |
 | **Container** | Docker + Docker Compose |
 
 > 📖 Guia completo de setup em [`docs/how-to-run.md`](docs/how-to-run.md)
