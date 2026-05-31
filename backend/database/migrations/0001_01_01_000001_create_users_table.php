@@ -13,6 +13,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->text('email')->notNullable();
             $table->text('email_hash')->notNullable();
+            $table->string('email_verified_at')->nullable();
             $table->text('name')->notNullable();
             $table->text('phone')->nullable();
             $table->text('password_hash')->nullable();

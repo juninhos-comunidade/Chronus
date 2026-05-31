@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasUuid, SoftDeletes, Notifiable;
+    use HasApiTokens, HasFactory, HasUuid, SoftDeletes, Notifiable;
 
     protected $fillable = [
         'email',
@@ -37,6 +38,7 @@ class User extends Authenticatable
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'email_verified_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];
     }
