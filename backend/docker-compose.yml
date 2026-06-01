@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: global_postgres
-    environment:
+    environment: 
       POSTGRES_USER: ${POSTGRES_USER:-edgar}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
       POSTGRES_DB: ${POSTGRES_DB:-juninhos}
