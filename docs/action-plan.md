@@ -555,9 +555,54 @@ POST /invites/{token}/accept  (auth:sanctum)
   → WorkspaceMemberResource 201
 ```
 
+**Regras de negócio:**
+
+`create`:
+- Verificar unicidade do `slug` → `Err conflict` se já existe
+- `withTransaction`:
+  1. `workspaces.create`
+  2. `workspace_members.create` — owner adicionado com `role: 'admin'` automaticamente
+- Emite `'workspace.created'`
+
+`inviteMember`:
+- Verificar que `requestingUser` é `admin` ou `lead` no workspace → `Err forbidden`
+- Verificar que não existe invite pendente para o email → `Err conflict`
+- Verificar que o email não pertence a membro já activo → `Err conflict`
+- Gerar token único (hash) com expiração de 72h
+- Enviar email de convite via `INotificationService`
+- Sem transacção — criação simples de invite
+
+`acceptInvite`:
+- Verificar token existe e `expiresAt > now()` → `Err validation: invite_expired`
+- Verificar `acceptedAt === null` → `Err conflict: invite_already_used`
+- `withTransaction`:
+  1. `invites.acceptInvite(token)` — preenche `acceptedAt`
+  2. `workspace_members.addMember` — adiciona ao workspace com o role do invite
+- Emite `'workspace.member_joined'`
+
+`updateMemberRole`:
+- Só `admin` pode alterar roles
+- Owner não pode ter o seu role alterado → `Err forbidden`
+- Admin não pode rebaixar-se a si próprio se for o único admin → `Err business`
+
+`removeMember`:
+- `admin` pode remover qualquer membro excepto o owner
+- `lead` pode remover `member`
+- Owner não pode ser removido — tem de transferir ownership ou apagar o workspace
+
+`leaveWorkspace`:
+- Owner não pode sair — tem de apagar o workspace ou transferir ownership → `Err business`
+
+**Transactions:**
+- `create` → `withTransaction`: `workspaces` + `workspace_members`
+- `acceptInvite` → `withTransaction`: `invites` + `workspace_members`
+
 ---
 
 ## FASE 3 — Sprints
+
+> O sprint é o ciclo de trabalho da equipa. Só pode haver um activo por workspace.
+> As tasks são a unidade central — existem no backlog ou associadas a um sprint.
 
 ### `SprintController`
 
@@ -626,6 +671,49 @@ GET /workspaces/{workspaceId}/sprints/{id}/metrics
   → SprintMetric::where('sprint_id', $id)->firstOrFail()
   → SprintMetricResource
 ```
+
+**Regras de negócio:**
+
+`create`:
+- Só `admin` ou `lead` podem criar sprints → `Err forbidden`
+- Status inicial: `draft`
+- Sem transacção — criação simples
+
+`start`:
+- Verificar que não existe sprint `active` no workspace → `Err business: sprint_already_active`
+- Sprint deve estar em `draft` → `Err business` se outro estado
+- Só `admin` ou `lead` podem iniciar → `Err forbidden`
+- `withTransaction`:
+  1. `sprints.update`: `status = active`, `startedAt = now()`
+  2. `activity_log.write`
+- Emite `'sprint.started'`
+
+`complete`:
+- Sprint deve estar `active` → `Err business` se outro estado
+- Só `admin` ou `lead` podem completar → `Err forbidden`
+- Calcular métricas do sprint no momento do fecho:
+  - `totalTasksPlanned` — tarefas que estavam no sprint ao iniciar (via task_history ou count actual)
+  - `totalTasksCompleted` — tarefas com `status: done`
+  - `totalTasksCarriedOver` — tarefas não `done` e não `cancelled` → movidas para backlog
+  - `totalTimeLoggedSeconds` — soma de `time_entries.duration_seconds` do período
+  - `completionRate` — `(completed / planned) * 10000` arredondado
+  - `membersSnapshot` — contribuição individual calculada neste momento
+- `withTransaction`:
+  1. `sprints.update`: `status = completed`, `completedAt = now()`, `retrospectiveNotes`
+  2. `sprint_metrics.create` — snapshot imutável, nunca recalculado
+  3. `tasks.update` (todos os não-done/não-cancelled do sprint): `sprintId = null` — voltam ao backlog
+  4. `activity_log.write`
+- Emite `'sprint.completed'`
+
+`cancel`:
+- Sprint deve ser `draft` ou `active`
+- Tasks associadas voltam ao backlog (`sprintId = null`)
+- Sem métricas criadas num sprint cancelado
+
+**Transactions:**
+- `start` → `withTransaction`: `sprints` + `activity_log`
+- `complete` → `withTransaction`: `sprints` + `sprint_metrics` + `tasks` (carry-over) + `activity_log`
+- `cancel` → `withTransaction`: `sprints` + `tasks`
 
 ---
 
@@ -732,11 +820,67 @@ GET /workspaces/{workspaceId}/tasks/{id}/history
   → TaskHistory::with('changer')->where('task_id', $taskId)->orderBy('changed_at', 'desc')->get()
   → TaskHistoryResource collection
 ```
+```
+
+**Regras de negócio:**
+
+`create`:
+- Verificar que user é membro do workspace → `Err forbidden`
+- Se `sprintId` fornecido → verificar que sprint existe e pertence ao workspace → `Err not_found`
+- `position` calculado automaticamente — inserido no fim da coluna (getLastPosition + 1)
+- `withTransaction`:
+  1. `tasks.create`
+  2. `task_history.create` — registo inicial: `field: 'created'`, `newValue: { title, status, priority }`
+- Emite `'task.created'`
+
+`updateStatus`:
+- Verificar membro do workspace → `Err forbidden`
+- Registar mudança no histórico sempre
+- Se `status → done` → verificar se deve desbloquear badge (via `IBadgeService.checkAndAward`)
+- Se `status → blocked` → `isBlocked = true`, `blockedSince = now()` — usar `blockTask` em vez disto
+- `withTransaction`:
+  1. `tasks.update` — novo status
+  2. `task_history.create` — `field: 'status'`, `oldValue`, `newValue`
+- Emite `'task.status_changed'`
+
+`blockTask`:
+- `isBlocked = true`, `blockedSince = now()`, `blockedReason = reason`
+- `withTransaction`: `tasks.update` + `task_history.create`
+- Emite `'task.blocked'`
+
+`unblockTask`:
+- `isBlocked = false`, `blockedReason = null`, `blockedSince = null`
+- `withTransaction`: `tasks.update` + `task_history.create`
+- Emite `'task.unblocked'`
+
+`moveToSprint`:
+- Verificar sprint `active` ou `draft` → `Err business` se `completed` ou `cancelled`
+- `withTransaction`: `tasks.update` + `task_history.create`
+
+`reorderTasks`:
+- Actualizar `position` de múltiplas tarefas de uma só vez
+- Sem transacção explícita — batch update atómico no repositório
+
+`addComment`:
+- Qualquer membro do workspace pode comentar
+
+`editComment` / `deleteComment`:
+- Só o autor pode editar/apagar o seu comentário → `Err forbidden`
+
+**Transactions:**
+- `create` → `withTransaction`: `tasks` + `task_history`
+- `updateStatus` → `withTransaction`: `tasks` + `task_history`
+- `blockTask` → `withTransaction`: `tasks` + `task_history`
+- `unblockTask` → `withTransaction`: `tasks` + `task_history`
+- `moveToSprint` → `withTransaction`: `tasks` + `task_history`
+- `update` (campos gerais) → `withTransaction`: `tasks` + `task_history` (para cada campo alterado)
 
 ---
 
 ## FASE 4 — Timer
 
+> O timer regista sessões de trabalho. O pomodoro é um modo especial do timer.
+> As badges são desbloqueadas automaticamente por eventos — nunca manualmente.
 ### `TimerController`
 
 ```
@@ -796,6 +940,61 @@ DELETE /workspaces/{workspaceId}/timer/entries/{id}
       Task::where('id', $entry->task_id)->update(['actual_minutes' => (int) floor($totalSeconds / 60)])
   → 204
 ```
+```
+
+**Regras de negócio:**
+
+`start`:
+- Verificar que user é membro do workspace → `Err forbidden`
+- Verificar que tarefa pertence ao workspace → `Err not_found`
+- Verificar que não existe timer activo (`endedAt = null`) para o user → `Err business: timer_already_active`
+- Criar `time_entry` com `endedAt = null` — timer activo
+- Sem transacção — criação simples
+
+`stop`:
+- Lookup `findActive(userId)` → `Err not_found: no_active_timer` se nenhum activo
+- `durationSeconds = Math.floor((now() - startedAt) / 1000)`
+- `withTransaction`:
+  1. `time_entries.update`: `endedAt = now()`, `durationSeconds`
+  2. `tasks.update`: `actualMinutes = sumDurationByTask(taskId) / 60` (recalculado)
+- Trigger badge check (fire-and-forget via event)
+- Emite `'timer.stopped'`
+
+`completePomodoroRound`:
+- Encontrar timer activo com `type: pomodoro` → `Err business` se não for pomodoro
+- Incrementar `pomodoroCount` no entry activo
+- `withTransaction`:
+  1. `time_entries.update`: `pomodoroCount += 1`
+  2. Não fecha o timer — apenas regista o ciclo
+- Emite `'pomodoro.completed'`
+- Trigger badge check
+
+`createManualEntry`:
+- Verificar `startedAt < endedAt` → `Err validation`
+- `durationSeconds = Math.floor((endedAt - startedAt) / 1000)`
+- `withTransaction`:
+  1. `time_entries.create` com `type: manual`
+  2. `tasks.update`: `actualMinutes` recalculado
+
+`deleteEntry`:
+- Só o próprio user pode apagar as suas entradas → `Err forbidden`
+- Timer activo não pode ser apagado directamente — deve ser parado primeiro → `Err business`
+- `withTransaction`:
+  1. `time_entries.delete`
+  2. `tasks.update`: `actualMinutes` recalculado
+
+**Transactions:**
+- `stop` → `withTransaction`: `time_entries` + `tasks`
+- `completePomodoroRound` → `withTransaction`: `time_entries`
+- `createManualEntry` → `withTransaction`: `time_entries` + `tasks`
+- `deleteEntry` → `withTransaction`: `time_entries` + `tasks`
+
+**Events:**
+```ts
+'timer.started': { entryId, taskId, userId, workspaceId, type }
+'timer.stopped': { entryId, taskId, userId, workspaceId, durationSeconds }
+'pomodoro.completed': { entryId, taskId, userId, workspaceId, pomodoroCount }
+```
 
 ---
 
@@ -834,6 +1033,37 @@ PATCH /staff/badges/{code}
   → $badge->update($request->validated())
   → BadgeDefinitionResource
 ```
+
+**Regras de negócio:**
+
+`checkAndAward`:
+- Chamado em fire-and-forget — falhas não afectam o fluxo principal
+- Avalia as condições de todas as badges activas relevantes para o `triggerEvent`:
+  - `pomodoros_completed` → disparado por `'pomodoro.completed'`: `countPomodorosByUserTotal(userId) >= threshold`
+  - `tasks_closed_in_day` → disparado por `'task.status_changed'` (→ done): contar tasks done pelo user hoje
+  - `sprint_completion_rate` → disparado por `'sprint.completed'`: `sprintMetrics.completionRate / 100 >= sprintCompletionRate`
+  - `focus_streak_days` → disparado por `'timer.stopped'`: calcular dias consecutivos com time_entry
+  - `total_hours_logged` → disparado por `'timer.stopped'`: `sumAllDuration(userId) / 3600 >= threshold`
+  - `blocker_removed` → disparado por `'task.unblocked'`
+- Para cada badge elegível:
+  1. `findUserBadge(userId, workspaceId, badgeCode)` — verificar se já desbloqueada
+  2. Se não existe → `withTransaction`: `user_badges.award` + `notifications.createInApp`
+- Emite `'badge.unlocked'` por cada badge nova
+
+**Mapa de condições → eventos disparadores:**
+```ts
+const badgeTriggers: Record<string, string[]> = {
+  'pomodoros_completed':      ['pomodoro.completed'],
+  'tasks_closed_in_day':      ['task.status_changed'],
+  'sprint_completion_rate':   ['sprint.completed'],
+  'focus_streak_days':        ['timer.stopped'],
+  'total_hours_logged':       ['timer.stopped'],
+  'blocker_removed':          ['task.unblocked'],
+}
+```
+
+**Transactions:**
+- `checkAndAward` (por badge) → `withTransaction`: `user_badges` + `notifications`
 
 **Como verificar e atribuir badges (chamado internamente após eventos chave):**
 
