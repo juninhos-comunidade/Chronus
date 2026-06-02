@@ -14,7 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->statefulApi();
+
+        $middleware->alias([
+            'staff.auth' => \App\Http\Middleware\CheckStaffToken::class,
+            'workspace.member' => \App\Http\Middleware\CheckWorkspaceMember::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
