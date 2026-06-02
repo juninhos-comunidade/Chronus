@@ -27,6 +27,7 @@ class User extends Authenticatable
         'timezone',
         'locale',
         'status',
+        'google_id',
     ];
 
     protected $hidden = [

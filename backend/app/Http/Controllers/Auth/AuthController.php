@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Laravel\Socialite\Socialite;
 
 class AuthController extends Controller
 {
@@ -89,5 +90,63 @@ class AuthController extends Controller
                 'token' => $newToken
             ]
         ]);
+    }
+
+    public function redirectToGoogle()
+    {
+        /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+        $driver = Socialite::driver('google');
+
+        return response()->json([
+            'url' => $driver->stateless()->redirect()->getTargetUrl(),
+        ]);
+    }
+
+    public function handleGoogleCallback()
+    {
+        /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+        $driver = Socialite::driver('google');
+
+        try {
+            $googleUser = $driver->stateless()->user();
+            $emailHash = hash('sha256', strtolower($googleUser->email));
+            
+            $response = DB::transaction(function () use ($googleUser, $emailHash){
+                $user = User::where('google_id', $googleUser->id)->orWhere('email_hash', $emailHash)->first();
+
+                if (!$user) {
+                    $user = User::create([
+                        'name' => $googleUser->name,
+                        'email' => $googleUser->email,
+                        'email_hash' => $emailHash,
+                        'google_id' => $googleUser->id,
+                    ]);
+                } elseif (!$user->google_id) {
+                    $user->update(['google_id' => $googleUser->id]);
+                }   
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+                
+                return[
+                    'token' => $token,
+                    'user' => $user
+                ];
+            });
+
+            return response()->json([
+                'message' => 'Login com Google realizado com sucesso!',
+                'data' => [
+                    'token' => $response['token'],
+                    'user' => new UserResource($response['user'])
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                            'error' => 'Falha na autenticação com o Google.',
+                            'motivo_real' => $e->getMessage(),
+                            'linha' => $e->getLine(),
+                            'arquivo' => $e->getFile()
+                        ], 500);
+        }
     }
 }
