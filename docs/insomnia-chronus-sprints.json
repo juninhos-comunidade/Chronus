@@ -1,0 +1,404 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-02T15:00:00.000Z",
+  "__export_source": "codex",
+  "resources": [
+    {
+      "_id": "wrk_chronus_sprints",
+      "parentId": null,
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "name": "Chronus - Sprints",
+      "description": "Requisicoes para testar as rotas de sprint do backend Chronus.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_chronus_sprints",
+      "parentId": "wrk_chronus_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://127.0.0.1:8000",
+        "token": "10|gwT9sIejFzdEBfsVFju6JEbUYJOGYXs8G7O9yT2ue07cd974",
+        "workspace_id": "",
+        "sprint_id": ""
+      },
+      "dataPropertyOrder": null,
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1780412400000,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_chronus_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "name": "Auth",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -2000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_login",
+      "parentId": "fld_auth",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "Login - gerar token",
+      "description": "Use esta requisicao se precisar gerar outro token. Depois atualize token no Base Environment.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"testpio@example.com\",\n  \"password\": \"passpio\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_sprints",
+      "parentId": "wrk_chronus_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "name": "Sprints",
+      "description": "Preencha workspace_id no Base Environment. Preencha sprint_id para detalhar ou atualizar.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_sprints_list",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints",
+      "name": "Sprint - listar",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_create",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints",
+      "name": "Sprint - criar",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Sprint 2\",\n  \"goal\": \"Implementar tasks\",\n  \"capacity_hours\": 40,\n  \"ends_at\": \"2026-06-20 18:00:00\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -900,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_active",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/active",
+      "name": "Sprint - buscar ativa",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -800,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_show",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}",
+      "name": "Sprint - detalhar",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -700,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_update",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}",
+      "name": "Sprint - atualizar",
+      "description": "",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Sprint atualizada\",\n  \"goal\": \"Validar rotas de sprint\",\n  \"capacity_hours\": 48,\n  \"ends_at\": \"2026-06-27 18:00:00\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -600,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_start",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}/start",
+      "name": "Sprint - iniciar",
+      "description": "Inicia uma sprint em rascunho. O workspace nao pode possuir outra sprint ativa.",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -500,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_complete",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}/complete",
+      "name": "Sprint - encerrar",
+      "description": "Encerra uma sprint ativa e cria as metricas.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"retrospective_notes\": \"Encerramento de teste\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -400,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_cancel",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}/cancel",
+      "name": "Sprint - cancelar",
+      "description": "Cancela uma sprint em draft ou active. Retorna 204 sem corpo.",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -300,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sprints_metrics",
+      "parentId": "fld_sprints",
+      "modified": 1780412400000,
+      "created": 1780412400000,
+      "url": "{{ _.base_url }}/api/workspaces/{{ _.workspace_id }}/sprints/{{ _.sprint_id }}/metrics",
+      "name": "Sprint - metricas",
+      "description": "Busca metricas de uma sprint ja encerrada.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}",
+        "prefix": "Bearer"
+      },
+      "metaSortKey": -200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    }
+  ]
+}
