@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SprintController;
 use Illuminate\Broadcasting\Broadcasters\UsePusherChannelConventions;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,5 +26,18 @@ Route::middleware('auth:sanctum')->prefix('users')->group(function () {
     Route::delete('/me', [UserController::class, 'destroyMe']);
 });
 
+Route::middleware('auth:sanctum')
+    ->prefix('workspaces/{workspaceId}/sprints')
+    ->group(function () {
+        Route::get('/', [SprintController::class, 'index']);
+        Route::post('/', [SprintController::class, 'store']);
+        Route::get('/active', [SprintController::class, 'active']);
+        Route::get('/{id}', [SprintController::class, 'show']);
+        Route::patch('/{id}', [SprintController::class, 'update']);
+        Route::post('/{id}/start', [SprintController::class, 'start']);
+        Route::post('/{id}/complete', [SprintController::class, 'complete']);
+        Route::post('/{id}/cancel', [SprintController::class, 'cancel']);
+        Route::get('/{id}/metrics', [SprintController::class, 'metrics']);
+    });
 
 
