@@ -1,14 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 
 @import "tailwindcss";
-  
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-
-  --font-sans: "Outfit", sans-serif;
+  --color-primary-yellow: #ffd631;
+  --color-black: #0d0b16;
+  --color-gray-dark: #18171c;
+  --color-gray-mid: #2d2d33;
+  --color-white: #e9e3e3;
 }
 
 @layer base {
@@ -18,13 +19,24 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 252 28% 7%;
+    --foreground: 0 0% 91%;
   }
 
-  html, body {
-    /* Adicionei transition-colors para o efeito não ser "seco" ao trocar */
-    @apply h-full antialiased font-sans transition-colors duration-300;
+  html,
+  body,
+  #root {
+    @apply min-h-screen antialiased font-sans transition-colors duration-300;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
   }
 }
 
