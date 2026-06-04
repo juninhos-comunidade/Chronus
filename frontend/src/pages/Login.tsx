@@ -1,7 +1,7 @@
 function Login() {
   return (
     <section className="flex h-screen w-screen items-center justify-center">
-      <div className="flex p-8 max-w-5xl w-full items-center justify-between gap-32 rounded-lg bg-gray-dark">
+      <div className="flex flex-col max-md:mx-4 md:flex-row p-8 max-w-5xl w-full items-center justify-between gap-8 md:gap-32 rounded-lg bg-gray-dark">
         <article className="flex flex-col gap-4">
           <img
             src="/images/logo-chronus.svg"
