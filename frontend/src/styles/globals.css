@@ -1,15 +1,35 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
-
+@import './typography.css';
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary-yellow: #ffd631;
-  --color-black: #0d0b16;
-  --color-gray-dark: #18171c;
-  --color-gray-mid: #2d2d33;
-  --color-white: #e9e3e3;
+  --color-primary-yellow: #FFD631;
+  --color-yellow-opacity-50: rgb(255 214 49 / 50%);
+  --color-yellow-opacity-15: rgb(255 214 49 / 15%);
+
+  --color-primary-blue: #81AFF0;
+
+  --color-orange: #FFB700;
+  --color-orange-opacity-50: rgb(255 183 0 / 50%);
+
+  --color-white: #E9E3E3;
+  --color-gray-light: #D6D6D6;
+  --color-gray-light-70: rgb(255 255 255 / 70%);
+  --color-gray-light-opacity-30: rgb(214 214 214 / 30%);
+  --color-gray-light-opacity-15: rgb(214 214 214 / 15%);
+
+  --color-black: #0D0B16;
+  --color-gray-dark: #18171C;
+  --color-gray-mid: #2D2D33;
+  --color-dim-gray: #666666;
+  --color-gray-300: #A8A8A8;
+
+  --color-red-elements: #C93333;
+
+  --font-primary: "Urbanist", sans-serif;
+  --font-secondary: "Inter", sans-serif;
+  --font-sans: "Outfit", sans-serif;
 }
 
 @layer base {
