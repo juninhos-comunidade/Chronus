@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "../pages/Dashboard"; // Página criada para teste do AuthGuard, sinta-se livre para excluir ou modificar
+import Home from "../pages/Home";
 import Login from "../pages/Login";
 
 import { AuthGuard } from "@/guards/AuthGuard";
@@ -9,14 +9,15 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/dashboard" // Rota criada para teste do AuthGuard, sinta-se livre para excluir ou modificar
+      {/* <Route
+        path="/"
         element={
           <AuthGuard>
-            <Dashboard />
+            <Home />
           </AuthGuard>
         }
-      />
+      /> */}
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 }
