@@ -1,11 +1,9 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import HeaderApp from "../components/HeaderApp";
 
 function Home() {
   return (
     <>
-      <Header />
-      <Footer />
+      <HeaderApp />
     </>
   );
 }

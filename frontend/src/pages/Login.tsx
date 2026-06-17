@@ -4,7 +4,7 @@ function Login() {
   const [isRegister, setIsRegister] = useState(false);
 
   return (
-    <section className="flex h-screen w-screen items-center justify-center">
+    <section className="flex h-screen w-screen items-center justify-center overflow-hidden">
       <div className="flex flex-col max-md:mx-4 p-8 max-w-5xl w-fit items-center justify-between gap-10 rounded-lg bg-gray-dark">
         <article className="flex flex-col gap-4">
           <img
