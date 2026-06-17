@@ -8,7 +8,7 @@ use App\Events\PomodoroCompleted;
 use App\Http\Requests\Timer\StartTimerRequest;
 use App\Http\Requests\Timer\StopTimerRequest;
 use App\Http\Requests\Timer\CreateManualEntryRequest;
-use App\Http\Resources\TimeEntryResource;
+use App\Http\Resources\TimerEntryResource;
 use App\Models\TimeEntry;
 use App\Models\Task;
 use Illuminate\Http\Request;
@@ -33,7 +33,7 @@ class TimerController extends Controller
 
         $entry->elapsed_seconds = now()->diffInSeconds($entry->started_at);
 
-        return new TimeEntryResource($entry);
+        return new TimerEntryResource($entry);
     }
 
     public function start(StartTimerRequest $request, int $workspaceId)
@@ -62,7 +62,7 @@ class TimerController extends Controller
 
         TimerStarted::dispatch($entry);
 
-        return response()->json(new TimeEntryResource($entry), Response::HTTP_CREATED);
+        return response()->json(new TimerEntryResource($entry), Response::HTTP_CREATED);
     }
 
     public function stop(StopTimerRequest $request, int $workspaceId)
@@ -86,7 +86,7 @@ class TimerController extends Controller
 
         TimerStopped::dispatch($entry, $duration);
 
-        return new TimeEntryResource($entry->fresh());
+        return new TimerEntryResource($entry->fresh());
     }
 
     public function completePomodoroRound(int $workspaceId)
@@ -107,7 +107,7 @@ class TimerController extends Controller
 
         PomodoroCompleted::dispatch($entry);
 
-        return new TimeEntryResource($entry->fresh());
+        return new TimerEntryResource($entry->fresh());
     }
 
     public function storeManual(CreateManualEntryRequest $request, int $workspaceId)
@@ -133,7 +133,7 @@ class TimerController extends Controller
             return $newEntry;
         });
 
-        return response()->json(new TimeEntryResource($entry), Response::HTTP_CREATED);
+        return response()->json(new TimerEntryResource($entry), Response::HTTP_CREATED);
     }
 
     public function index(Request $request, int $workspaceId)
@@ -148,7 +148,7 @@ class TimerController extends Controller
             $query->where('started_at', '<=', Carbon::parse($request->to));
         }
 
-        return TimeEntryResource::collection($query->latest('started_at')->paginate(20));
+        return TimerEntryResource::collection($query->latest('started_at')->paginate(20));
     }
 
     public function taskEntries(int $workspaceId, int $taskId)
@@ -157,7 +157,7 @@ class TimerController extends Controller
             ->latest('started_at')
             ->paginate(20);
 
-        return TimeEntryResource::collection($entries);
+        return TimerEntryResource::collection($entries);
     }
 
     public function destroy(int $workspaceId, int $id)

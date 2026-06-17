@@ -30,17 +30,14 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::prefix('workspaces/{workspaceId}')->group(function () {
         
-        // Rotas do Timer
         Route::get('/timer/active', [TimerController::class, 'getActive']);
         Route::post('/timer/start', [TimerController::class, 'start']);
         Route::post('/timer/stop', [TimerController::class, 'stop']);
         Route::post('/timer/pomodoro/complete', [TimerController::class, 'completePomodoroRound']);
         Route::post('/timer/manual', [TimerController::class, 'storeManual']);
         Route::get('/timer/entries', [TimerController::class, 'index']);
-        Route::delete('/timer/entries/{id}', [TimerController::class, 'destroy']);
-        
-        // Rota de histórico da Tarefa
         Route::get('/tasks/{taskId}/entries', [TimerController::class, 'taskEntries']);
+        Route::delete('/timer/entries/{id}', [TimerController::class, 'destroy']);
         
     });
 });
