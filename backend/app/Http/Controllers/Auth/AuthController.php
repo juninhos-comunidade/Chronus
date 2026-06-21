@@ -104,11 +104,11 @@ class AuthController extends Controller
 
     public function handleGoogleCallback()
     {
-        /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
-        $driver = Socialite::driver('google');
-
         try {
+            /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+            $driver = Socialite::driver('google');
             $googleUser = $driver->stateless()->user();
+
             $emailHash = hash('sha256', strtolower($googleUser->email));
             
             $response = DB::transaction(function () use ($googleUser, $emailHash){
@@ -133,13 +133,12 @@ class AuthController extends Controller
                 ];
             });
 
-            return response()->json([
-                'message' => 'Login com Google realizado com sucesso!',
-                'data' => [
-                    'token' => $response['token'],
-                    'user' => new UserResource($response['user'])
-                ]
-            ]);
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+
+            $urlDashboard = $frontendUrl . '/dashboard?token=' . $response['token'];
+            
+            return redirect()->away($urlDashboard);
+            
         } catch (\Exception $e) {
             return response()->json([
                             'error' => 'Falha na autenticação com o Google.',
