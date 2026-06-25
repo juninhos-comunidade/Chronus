@@ -12,6 +12,8 @@ class TaskComment extends Model
 {
     use HasFactory, HasUuid, SoftDeletes;
 
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'task_id',
         'author_id',

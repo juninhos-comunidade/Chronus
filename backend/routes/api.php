@@ -1,12 +1,13 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\SprintController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TimerController;
-use Illuminate\Broadcasting\Broadcasters\UsePusherChannelConventions;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskCommentController;
+use App\Http\Controllers\TaskHistoryController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -27,9 +28,7 @@ Route::middleware('auth:sanctum')->prefix('users')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    
     Route::prefix('workspaces/{workspaceId}')->group(function () {
-        
         Route::get('/timer/active', [TimerController::class, 'getActive']);
         Route::post('/timer/start', [TimerController::class, 'start']);
         Route::post('/timer/stop', [TimerController::class, 'stop']);
@@ -38,9 +37,40 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/timer/entries', [TimerController::class, 'index']);
         Route::get('/tasks/{taskId}/entries', [TimerController::class, 'taskEntries']);
         Route::delete('/timer/entries/{id}', [TimerController::class, 'destroy']);
-        
     });
 });
 
+Route::middleware('auth:sanctum')
+    ->prefix('workspaces/{workspaceId}/sprints')
+    ->group(function () {
+        Route::get('/', [SprintController::class, 'index']);
+        Route::post('/', [SprintController::class, 'store']);
+        Route::get('/active', [SprintController::class, 'active']);
+        Route::get('/{id}', [SprintController::class, 'show']);
+        Route::patch('/{id}', [SprintController::class, 'update']);
+        Route::post('/{id}/start', [SprintController::class, 'start']);
+        Route::post('/{id}/complete', [SprintController::class, 'complete']);
+        Route::post('/{id}/cancel', [SprintController::class, 'cancel']);
+        Route::get('/{id}/metrics', [SprintController::class, 'metrics']);
+    });
 
-
+Route::middleware('auth:sanctum')
+    ->prefix('workspaces/{workspaceId}/tasks')
+    ->group(function () {
+        Route::get('/', [TaskController::class, 'index']);
+        Route::post('/', [TaskController::class, 'store']);
+        Route::get('/backlog', [TaskController::class, 'backlog']);
+        Route::post('/reorder', [TaskController::class, 'reorder']);
+        Route::get('/{id}', [TaskController::class, 'show']);
+        Route::patch('/{id}', [TaskController::class, 'update']);
+        Route::delete('/{id}', [TaskController::class, 'destroy']);
+        Route::patch('/{id}/status', [TaskController::class, 'updateStatus']);
+        Route::post('/{id}/block', [TaskController::class, 'block']);
+        Route::post('/{id}/unblock', [TaskController::class, 'unblock']);
+        Route::post('/{id}/move', [TaskController::class, 'move']);
+        Route::get('/{id}/comments', [TaskCommentController::class, 'index']);
+        Route::post('/{id}/comments', [TaskCommentController::class, 'store']);
+        Route::patch('/{id}/comments/{commentId}', [TaskCommentController::class, 'update']);
+        Route::delete('/{id}/comments/{commentId}', [TaskCommentController::class, 'destroy']);
+        Route::get('/{id}/history', [TaskHistoryController::class, 'index']);
+    });

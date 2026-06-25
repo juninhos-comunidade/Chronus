@@ -1,4 +1,22 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: juninhos_backend
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      DB_HOST: postgres
+    ports:
+      - '8000:8000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - juninhos_network
+
   postgres:
     image: postgres:17-alpine
     container_name: global_postgres

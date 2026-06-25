@@ -82,21 +82,4 @@ class Task extends Model
     {
         return $this->hasMany(TimeEntry::class);
     }
-
-    protected static function booted(): void
-    {
-        static::updating(function (Task $task) {
-            if ($task->isDirty('status')) {
-                $oldStatus = $task->getOriginal('status');
-                $newStatus = $task->status;
-
-                $task->history()->create([
-                    'changed_by' => auth()->id() ?? $task->created_by,
-                    'field' => 'status',
-                    'old_value' => $oldStatus,
-                    'new_value' => $newStatus,
-                ]);
-            }
-        });
-    }
 }
