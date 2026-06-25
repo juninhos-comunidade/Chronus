@@ -8,7 +8,10 @@ import {
   Plus,
   Settings,
   X,
+  Menu,
 } from "lucide-react";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 type Workspace = {
   id: string;
@@ -21,23 +24,27 @@ const menuItems = [
   {
     label: "Dashboard",
     icon: LayoutDashboard,
-    active: true,
+    path: "/dashboard",
   },
   {
     label: "Kanban",
     icon: KanbanSquare,
+    path: "/kanban",
   },
   {
     label: "Métricas",
     icon: LineChart,
+    path: "/metricas",
   },
   {
     label: "Pomodoro",
     icon: Timer,
+    path: "/pomodoro",
   },
   {
     label: "Badges",
     icon: BadgeCheck,
+    path: "/badges",
   },
 ];
 
@@ -57,98 +64,135 @@ const workspaces: Workspace[] = [
 ];
 
 export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <aside className="w-65 min-h-screen shrink-0 border-r border-white/10 flex flex-col justify-between bg-gray-dark text-white">
+    <aside
+      className={`min-h-screen shrink-0 border-r border-white/10 bg-gray-dark text-white transition-[width] duration-300 ${
+        collapsed ? "w-[72px]" : "w-56"
+      } flex flex-col justify-between`}
+    >
       <div className="flex-1 overflow-y-auto">
-        <header className="flex items-center justify-center px-6 py-6">
-          <img
-            src="/images/logo-chronus.svg"
-            alt="Logo Chronus"
-            className="h-8"
-          />
+        <header
+          className={`flex items-center px-1 py-4 ${
+            collapsed ? "justify-center" : "justify-between"
+          }`}
+        >
+          {!collapsed && (
+            <img
+              src="/images/logo-chronus.svg"
+              alt="Logo Chronus"
+              className="ml-4 h-7"
+            />
+          )}
+
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
+            className="rounded-md p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+          >
+            {collapsed ? <Menu size={22} /> : <X size={17} />}
+          </button>
         </header>
 
-        <nav className="mt-2 space-y-1">
+        <nav className="mt-1 space-y-0.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
 
             return (
-              <button
+              <NavLink
                 key={item.label}
-                className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors text-white/80 hover:text-[var(--color-white)] hover:bg-white/5 ${
-                  item.active
-                    ? "bg-[rgba(255,214,49,0.12)] text-primary-yellow border-l-4 border-primary-yellow"
-                    : ""
-                }`}
+                to={item.path}
+                title={collapsed ? item.label : undefined}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5 ${
+                    collapsed ? "justify-center" : ""
+                  } ${
+                    isActive
+                      ? "border-l-4 border-primary-yellow bg-[rgba(255,214,49,0.12)] text-primary-yellow"
+                      : "border-l-4 border-transparent text-white/80 hover:text-white"
+                  }`
+                }
               >
-                <Icon size={18} />
+                <Icon size={17} />
 
-                <span>{item.label}</span>
-              </button>
+                {!collapsed && <span>{item.label}</span>}
+              </NavLink>
             );
           })}
         </nav>
 
-        <section className="mt-8">
-          <div className="flex items-center justify-between mb-3 px-4">
-            <span className="text-xs text-[var(--color-white)]/60">
-              Área de trabalho
-            </span>
+        {!collapsed && (
+          <section className="mt-6">
+            <div className="mb-2 flex items-center justify-between px-4">
+              <span className="text-xs text-[var(--color-white)]/60">
+                Área de trabalho
+              </span>
 
-            <div className="flex items-center gap-2">
-              <button className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-[var(--color-white)]/70 hover:bg-white/20 transition-colors">
-                <Plus size={14} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-[var(--color-white)]/70 hover:bg-white/20 transition-colors">
+                  <Plus size={14} />
+                </button>
 
-              <button className="text-[var(--color-primary-yellow)] hover:text-[var(--color-white)] transition-colors">
-                <ChevronDown size={16} />
-              </button>
+                <button className="text-[var(--color-primary-yellow)] hover:text-[var(--color-white)] transition-colors">
+                  <ChevronDown size={16} />
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="h-px bg-white/10 mb-4" />
+            <div className="mb-3 h-px bg-white/10" />
 
-          <div className="flex flex-col gap-3">
-            {workspaces.map((workspace) => (
-              <button
-                key={workspace.id}
-                className="flex items-center gap-3 px-4 py-1 text-sm text-[var(--color-white)]/80 hover:text-[var(--color-white)] hover:bg-white/5 transition-colors"
-              >
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-semibold ${workspace.color}`}
+            <div className="flex flex-col gap-2">
+              {workspaces.map((workspace) => (
+                <button
+                  key={workspace.id}
+                  className="flex items-center gap-2.5 px-4 py-1 text-sm text-[var(--color-white)]/80 transition-colors hover:bg-white/5 hover:text-[var(--color-white)]"
                 >
-                  {workspace.initials}
-                </div>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold ${workspace.color}`}
+                  >
+                    {workspace.initials}
+                  </div>
 
-                <span>{workspace.name}</span>
-              </button>
-            ))}
-          </div>
-        </section>
+                  <span>{workspace.name}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
-      <footer className="border-t border-white/10 bg-[rgba(255,255,255,0.04)] p-4">
-        <div className="flex items-center justify-between gap-3">
+      <footer className="border-t border-white/10 bg-[rgba(255,255,255,0.04)] p-3">
+        <div
+          className={`flex items-center gap-3 ${
+            collapsed ? "justify-center" : "justify-between"
+          }`}
+        >
           <div className="flex items-center gap-3">
             <img
               src="https://i.pravatar.cc/100"
               alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover"
+              className="h-9 w-9 rounded-full object-cover"
             />
 
-            <div>
-              <strong className="block text-sm text-[var(--color-white)]">
-                Username
-              </strong>
-              <span className="text-xs text-[var(--color-white)]/60">
-                example@gmail.com
-              </span>
-            </div>
+            {!collapsed && (
+              <div>
+                <strong className="block text-sm text-[var(--color-white)]">
+                  Username
+                </strong>
+                <span className="text-xs text-[var(--color-white)]/60">
+                  example@gmail.com
+                </span>
+              </div>
+            )}
           </div>
 
-          <button className="text-[var(--color-white)]/70 hover:text-[var(--color-white)] transition-colors">
-            <Settings size={18} />
-          </button>
+          {!collapsed && (
+            <button className="text-[var(--color-white)]/70 hover:text-[var(--color-white)] transition-colors">
+              <Settings size={18} />
+            </button>
+          )}
         </div>
       </footer>
     </aside>
