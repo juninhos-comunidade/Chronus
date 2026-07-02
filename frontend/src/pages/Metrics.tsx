@@ -1,12 +1,35 @@
 import { Activity, BarChart3, TrendingUp, type LucideIcon } from "lucide-react";
+import { useMemo } from "react";
 
-const metricCards: { icon: LucideIcon; value: string; label: string }[] = [
-  { icon: TrendingUp, value: "82%", label: "Entregas no prazo" },
-  { icon: Activity, value: "37", label: "Pomodoros concluídos" },
-  { icon: BarChart3, value: "59", label: "Tarefas finalizadas" },
-];
+import { getTasksWithStatus, useChronusStore } from "@/stores/useChronusStore";
 
 function Metrics() {
+  const columns = useChronusStore((state) => state.columns);
+  const tasks = useMemo(() => getTasksWithStatus(columns), [columns]);
+  const completedPomodoros = useChronusStore(
+    (state) => state.pomodoro.completedTotal,
+  );
+  const onTimePercentage = tasks.length
+    ? Math.round((tasks.filter((task) => task.onTime).length / tasks.length) * 100)
+    : 0;
+  const metricCards: { icon: LucideIcon; value: string; label: string }[] = [
+    {
+      icon: TrendingUp,
+      value: `${onTimePercentage}%`,
+      label: "Entregas no prazo",
+    },
+    {
+      icon: Activity,
+      value: String(completedPomodoros),
+      label: "Pomodoros concluídos",
+    },
+    {
+      icon: BarChart3,
+      value: String(tasks.filter((task) => task.status === "Concluído").length),
+      label: "Tarefas finalizadas",
+    },
+  ];
+
   return (
     <section className="mx-auto max-w-[960px]">
       <h1 className="mb-5 text-2xl font-semibold">Métricas</h1>

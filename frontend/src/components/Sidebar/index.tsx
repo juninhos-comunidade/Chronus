@@ -13,12 +13,7 @@ import {
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
-type Workspace = {
-  id: string;
-  name: string;
-  initials: string;
-  color: string;
-};
+import { useChronusStore } from "@/stores/useChronusStore";
 
 const menuItems = [
   {
@@ -48,23 +43,10 @@ const menuItems = [
   },
 ];
 
-const workspaces: Workspace[] = [
-  {
-    id: "1",
-    name: "Equipe Gerencia",
-    initials: "EG",
-    color: "bg-[var(--color-primary-yellow)] text-[var(--color-black)]",
-  },
-  {
-    id: "2",
-    name: "Equipe Projeto",
-    initials: "EP",
-    color: "bg-[var(--color-gray-mid)] text-[var(--color-white)]",
-  },
-];
-
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const workspaces = useChronusStore((state) => state.workspaces);
+  const currentUser = useChronusStore((state) => state.currentUser);
 
   return (
     <aside
@@ -123,7 +105,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        {!collapsed && (
+        {/* {!collapsed && (
           <section className="mt-6">
             <div className="mb-2 flex items-center justify-between px-4">
               <span className="text-xs text-[var(--color-white)]/60">
@@ -160,7 +142,7 @@ export function Sidebar() {
               ))}
             </div>
           </section>
-        )}
+        )} */}
       </div>
 
       <footer className="border-t border-white/10 bg-[rgba(255,255,255,0.04)] p-3">
@@ -171,7 +153,7 @@ export function Sidebar() {
         >
           <div className="flex items-center gap-3">
             <img
-              src="https://i.pravatar.cc/100"
+              src={currentUser.avatarUrl}
               alt="Avatar"
               className="h-9 w-9 rounded-full object-cover"
             />
@@ -179,10 +161,10 @@ export function Sidebar() {
             {!collapsed && (
               <div>
                 <strong className="block text-sm text-[var(--color-white)]">
-                  Username
+                  {currentUser.name}
                 </strong>
                 <span className="text-xs text-[var(--color-white)]/60">
-                  example@gmail.com
+                  {currentUser.email}
                 </span>
               </div>
             )}

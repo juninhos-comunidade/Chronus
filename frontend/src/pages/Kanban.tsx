@@ -4,127 +4,14 @@ import {
   Droppable,
   type DropResult,
 } from "@hello-pangea/dnd";
-import { MessageCircle, MoreHorizontal, Plus } from "lucide-react";
-import { useState } from "react";
+import { MessageCircle, MoreHorizontal, Plus, Timer } from "lucide-react";
+import { type FormEvent, useState } from "react";
 
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  priority: "Alta" | "media" | "baixa";
-  assignee: string;
-  comments: number;
-};
-
-type Column = {
-  id: string;
-  title: string;
-  color: string;
-  tasks: Task[];
-};
-
-const initialColumns: Column[] = [
-  {
-    id: "backlog",
-    title: "Backlog",
-    color: "bg-red-500",
-    tasks: [
-      {
-        id: "backlog-1",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "Alta",
-        assignee: "JS",
-        comments: 12,
-      },
-      {
-        id: "backlog-2",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "baixa",
-        assignee: "MR",
-        comments: 8,
-      },
-    ],
-  },
-  {
-    id: "todo",
-    title: "A Fazer",
-    color: "bg-blue-400",
-    tasks: [
-      {
-        id: "todo-1",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "Alta",
-        assignee: "JS",
-        comments: 12,
-      },
-      {
-        id: "todo-2",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "baixa",
-        assignee: "MR",
-        comments: 8,
-      },
-      {
-        id: "todo-3",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "Alta",
-        assignee: "LK",
-        comments: 1,
-      },
-    ],
-  },
-  {
-    id: "progress",
-    title: "Em Andamento",
-    color: "bg-amber-400",
-    tasks: [
-      {
-        id: "progress-1",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "Alta",
-        assignee: "KA",
-        comments: 12,
-      },
-      {
-        id: "progress-2",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "media",
-        assignee: "MA",
-        comments: 8,
-      },
-    ],
-  },
-  {
-    id: "done",
-    title: "Concluído",
-    color: "bg-green-600",
-    tasks: [
-      {
-        id: "done-1",
-        title: "Fix: modal",
-        description:
-          "Lorem ipsum dolor sit amet consectetur adipisicnonsectetur adipiscing elit g elit sed do....",
-        priority: "baixa",
-        assignee: "EP",
-        comments: 4,
-      },
-    ],
-  },
-];
+import {
+  useChronusStore,
+  type KanbanColumn,
+  type TaskPriority,
+} from "@/stores/useChronusStore";
 
 const priorityClass = {
   Alta: "border-red-400/60 bg-red-500/50 text-red-100",
@@ -132,8 +19,51 @@ const priorityClass = {
   baixa: "border-green-500/30 bg-green-700/70 text-green-100",
 };
 
+const initialFormState = {
+  title: "",
+  description: "",
+  priority: "media" as TaskPriority,
+  assignee: "",
+  dueToday: true,
+};
+
 function Kanban() {
-  const [columns, setColumns] = useState(initialColumns);
+  const columns = useChronusStore((state) => state.columns);
+  const activeTaskId = useChronusStore((state) => state.pomodoro.activeTaskId);
+  const addTask = useChronusStore((state) => state.addTask);
+  const moveTask = useChronusStore((state) => state.moveTask);
+  const setPomodoroTask = useChronusStore((state) => state.setPomodoroTask);
+  const [targetColumn, setTargetColumn] = useState<KanbanColumn | null>(null);
+  const [formState, setFormState] = useState(initialFormState);
+  const [formError, setFormError] = useState("");
+
+  function openTaskForm(column: KanbanColumn) {
+    setTargetColumn(column);
+    setFormState(initialFormState);
+    setFormError("");
+  }
+
+  function closeTaskForm() {
+    setTargetColumn(null);
+    setFormError("");
+  }
+
+  function handleCreateTask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!targetColumn) {
+      return;
+    }
+
+    const task = addTask(targetColumn.id, formState);
+
+    if (!task) {
+      setFormError("Preencha título, descrição e responsável.");
+      return;
+    }
+
+    closeTaskForm();
+  }
 
   function handleDragEnd(result: DropResult) {
     const destination = result.destination;
@@ -142,54 +72,12 @@ function Kanban() {
       return;
     }
 
-    setColumns((currentColumns) => {
-      const nextColumns = currentColumns.map((column) => ({
-        ...column,
-        tasks: [...column.tasks],
-      }));
-      const sourceColumn = nextColumns.find(
-        (column) => column.id === result.source.droppableId,
-      );
-      const destinationColumn = nextColumns.find(
-        (column) => column.id === destination.droppableId,
-      );
-
-      if (!sourceColumn || !destinationColumn) {
-        return currentColumns;
-      }
-
-      const [task] = sourceColumn.tasks.splice(result.source.index, 1);
-
-      if (!task) {
-        return currentColumns;
-      }
-
-      destinationColumn.tasks.splice(destination.index, 0, task);
-      return nextColumns;
+    moveTask({
+      sourceColumnId: result.source.droppableId,
+      sourceIndex: result.source.index,
+      destinationColumnId: destination.droppableId,
+      destinationIndex: destination.index,
     });
-  }
-
-  function addTask(columnId: string) {
-    setColumns((currentColumns) =>
-      currentColumns.map((column) =>
-        column.id === columnId
-          ? {
-              ...column,
-              tasks: [
-                ...column.tasks,
-                {
-                  id: `${columnId}-${Date.now()}`,
-                  title: "Nova tarefa",
-                  description: "Descreva o escopo, responsável e prazo desta tarefa.",
-                  priority: "media",
-                  assignee: "NC",
-                  comments: 0,
-                },
-              ],
-            }
-          : column,
-      ),
-    );
   }
 
   return (
@@ -208,7 +96,7 @@ function Kanban() {
                 </h2>
                 <button
                   type="button"
-                  onClick={() => addTask(column.id)}
+                  onClick={() => openTaskForm(column)}
                   className="text-white/45 transition-colors hover:text-primary-yellow"
                   aria-label={`Adicionar tarefa em ${column.title}`}
                 >
@@ -245,7 +133,7 @@ function Kanban() {
                           >
                             <div className="mb-3 flex items-center justify-between gap-3">
                               <span className="text-sm text-white/55">
-                                ID 203
+                                {task.code}
                               </span>
                               <span
                                 className={`rounded-full border px-2.5 py-1 text-xs ${priorityClass[task.priority]}`}
@@ -265,18 +153,37 @@ function Kanban() {
                               <span className="grid h-8 w-8 place-items-center rounded-full bg-green-700 text-xs font-semibold">
                                 {task.assignee}
                               </span>
-                              <span className="flex items-center gap-1.5 text-sm font-semibold text-white/75">
-                                <MessageCircle
-                                  size={18}
-                                  className="text-primary-yellow"
-                                />
-                                {task.comments}
-                              </span>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => setPomodoroTask(task.id)}
+                                  className={`text-white/55 transition-colors hover:text-primary-yellow ${
+                                    activeTaskId === task.id
+                                      ? "text-primary-yellow"
+                                      : ""
+                                  }`}
+                                  aria-label={`Usar ${task.code} no pomodoro`}
+                                >
+                                  <Timer size={18} />
+                                </button>
+                                <span className="flex items-center gap-1.5 text-sm font-semibold text-white/75">
+                                  <MessageCircle
+                                    size={18}
+                                    className="text-primary-yellow"
+                                  />
+                                  {task.comments}
+                                </span>
+                              </div>
                             </footer>
                           </div>
                         )}
                       </Draggable>
                     ))}
+                    {column.tasks.length === 0 && (
+                      <div className="rounded-lg border border-dashed border-white/15 px-4 py-6 text-center text-sm text-white/45">
+                        Nenhuma tarefa nesta coluna.
+                      </div>
+                    )}
                     {provided.placeholder}
                   </div>
                 )}
@@ -285,7 +192,7 @@ function Kanban() {
               {column.id === "backlog" && (
                 <button
                   type="button"
-                  onClick={() => addTask(column.id)}
+                  onClick={() => openTaskForm(column)}
                   className="mt-4 flex h-12 items-center justify-center gap-3 rounded-lg border border-primary-yellow text-sm font-semibold text-primary-yellow transition-colors hover:bg-primary-yellow hover:text-black"
                 >
                   <Plus size={18} />
@@ -296,6 +203,134 @@ function Kanban() {
           ))}
         </div>
       </section>
+
+      {targetColumn && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4">
+          <form
+            onSubmit={handleCreateTask}
+            className="w-full max-w-lg rounded-lg border border-white/15 bg-[#17161b] p-5 shadow-xl"
+          >
+            <header className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Adicionar tarefa</h2>
+                <p className="text-sm text-white/55">{targetColumn.title}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeTaskForm}
+                className="rounded-lg px-3 py-2 text-sm text-white/65 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                Cancelar
+              </button>
+            </header>
+
+            <div className="grid gap-4">
+              <label className="grid gap-1.5 text-sm font-semibold">
+                Título
+                <input
+                  value={formState.title}
+                  onChange={(event) =>
+                    setFormState((state) => ({
+                      ...state,
+                      title: event.target.value,
+                    }))
+                  }
+                  className="rounded-lg border border-white/15 bg-[#252429] px-3 py-2 text-sm font-normal text-white outline-none transition-colors focus:border-primary-yellow"
+                  placeholder="Nome da tarefa"
+                />
+              </label>
+
+              <label className="grid gap-1.5 text-sm font-semibold">
+                Descrição
+                <textarea
+                  value={formState.description}
+                  onChange={(event) =>
+                    setFormState((state) => ({
+                      ...state,
+                      description: event.target.value,
+                    }))
+                  }
+                  className="min-h-24 resize-none rounded-lg border border-white/15 bg-[#252429] px-3 py-2 text-sm font-normal text-white outline-none transition-colors focus:border-primary-yellow"
+                  placeholder="Escopo, critério de aceite ou contexto"
+                />
+              </label>
+
+              <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+                <label className="grid gap-1.5 text-sm font-semibold">
+                  Prioridade
+                  <select
+                    value={formState.priority}
+                    onChange={(event) =>
+                      setFormState((state) => ({
+                        ...state,
+                        priority: event.target.value as TaskPriority,
+                      }))
+                    }
+                    className="rounded-lg border border-white/15 bg-[#252429] px-3 py-2 text-sm font-normal text-white outline-none transition-colors focus:border-primary-yellow"
+                  >
+                    <option value="Alta">Alta</option>
+                    <option value="media">Média</option>
+                    <option value="baixa">Baixa</option>
+                  </select>
+                </label>
+
+                <label className="grid gap-1.5 text-sm font-semibold">
+                  Responsável
+                  <input
+                    value={formState.assignee}
+                    onChange={(event) =>
+                      setFormState((state) => ({
+                        ...state,
+                        assignee: event.target.value,
+                      }))
+                    }
+                    className="rounded-lg border border-white/15 bg-[#252429] px-3 py-2 text-sm font-normal uppercase text-white outline-none transition-colors focus:border-primary-yellow"
+                    maxLength={2}
+                    placeholder="KA"
+                  />
+                </label>
+              </div>
+
+              <label className="flex items-center gap-2 text-sm text-white/80">
+                <input
+                  type="checkbox"
+                  checked={formState.dueToday}
+                  onChange={(event) =>
+                    setFormState((state) => ({
+                      ...state,
+                      dueToday: event.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 accent-primary-yellow"
+                />
+                Vence hoje
+              </label>
+            </div>
+
+            {formError && (
+              <p className="mt-4 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+                {formError}
+              </p>
+            )}
+
+            <footer className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeTaskForm}
+                className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/75 transition-colors hover:bg-white/20 hover:text-white"
+              >
+                Fechar
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg bg-primary-yellow px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-yellow-500"
+              >
+                Salvar tarefa
+              </button>
+            </footer>
+          </form>
+        </div>
+      )}
     </DragDropContext>
   );
 }
